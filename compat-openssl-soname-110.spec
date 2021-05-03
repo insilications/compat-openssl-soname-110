@@ -140,6 +140,14 @@ Group: Libraries
 lib components for the compat-openssl-soname-110 package.
 
 
+%package staticdev
+Summary: staticdev components for the compat-openssl-soname-110 package.
+Group: Default
+
+%description staticdev
+staticdev components for the compat-openssl-soname-110 package.
+
+
 %prep
 %setup -q -n openssl-1.1.0l
 cd %{_builddir}/openssl-1.1.0l
@@ -156,7 +164,7 @@ unset https_proxy
 unset no_proxy
 export SSL_CERT_FILE=/var/cache/ca-certs/anchors/ca-certificates.crt
 export LANG=C.UTF-8
-export SOURCE_DATE_EPOCH=1620026929
+export SOURCE_DATE_EPOCH=1620027454
 export GCC_IGNORE_WERROR=1
 export AR=gcc-ar
 export RANLIB=gcc-ranlib
@@ -246,7 +254,7 @@ make  %{?_smp_mflags}  V=1 VERBOSE=1
 popd
 
 %install
-export SOURCE_DATE_EPOCH=1620026929
+export SOURCE_DATE_EPOCH=1620027454
 rm -rf %{buildroot}
 ## install_prepend content
 export CFLAGS_ORIG="$CFLAGS"
@@ -345,9 +353,7 @@ rm -f %{buildroot}/usr/include/openssl/x509v3.h
 rm -f %{buildroot}/usr/lib64/engines-1.1/afalg.so
 rm -f %{buildroot}/usr/lib64/engines-1.1/capi.so
 rm -f %{buildroot}/usr/lib64/engines-1.1/padlock.so
-rm -f %{buildroot}/usr/lib64/libcrypto.a
 rm -f %{buildroot}/usr/lib64/libcrypto.so
-rm -f %{buildroot}/usr/lib64/libssl.a
 rm -f %{buildroot}/usr/lib64/libssl.so
 rm -f %{buildroot}/usr/lib64/pkgconfig/libcrypto.pc
 rm -f %{buildroot}/usr/lib64/pkgconfig/libssl.pc
@@ -366,3 +372,8 @@ rm -rf %{buildroot}/usr/share/man/
 %defattr(-,root,root,-)
 /usr/lib64/libcrypto.so.1.1
 /usr/lib64/libssl.so.1.1
+
+%files staticdev
+%defattr(-,root,root,-)
+/usr/lib64/libcrypto.a
+/usr/lib64/libssl.a
