@@ -1,0 +1,90 @@
+From d412beac5cc3152b5c0ffa6c6ae28b78b5b2924c Mon Sep 17 00:00:00 2001
+From: Francisco Boni <boboniboni@gmail.com>
+Date: Mon, 3 May 2021 04:05:17 -0300
+Subject: [PATCH 3/3] Use OS provided copy of openssl.cnf as fallback
+
+---
+ apps/apps.c                        | 3 +++
+ apps/openssl.c                     | 7 ++++++-
+ crypto/conf/conf_mod.c             | 5 ++++-
+ crypto/include/internal/cryptlib.h | 9 +++++++--
+ 4 files changed, 20 insertions(+), 4 deletions(-)
+
+diff --git a/apps/apps.c b/apps/apps.c
+index 94efa5a..f9ddbf9 100644
+--- a/apps/apps.c
++++ b/apps/apps.c
+@@ -462,6 +462,9 @@ int app_load_modules(const CONF *config)
+ 
+     if (config == NULL)
+         config = to_free = app_load_config_quiet(default_config_file);
++    /* clearlinux: use OS defaults if no explicit or /etc/ cnf found */
++    if (config == NULL)
++        config = to_free = app_load_config_quiet("/usr/share/defaults/ssl/openssl.cnf");
+     if (config == NULL)
+         return 1;
+ 
+diff --git a/apps/openssl.c b/apps/openssl.c
+index 2607694..b63e25b 100644
+--- a/apps/openssl.c
++++ b/apps/openssl.c
+@@ -105,7 +105,12 @@ static char *make_config_name()
+ #endif
+     strcat(p, OPENSSL_CONF);
+ 
+-    return p;
++    if (access(p, R_OK) == 0)
++        return p;
++
++    OPENSSL_free(p);
++
++    return OPENSSL_strdup("/usr/share/defaults/ssl/openssl.cnf");
+ }
+ 
+ int main(int argc, char *argv[])
+diff --git a/crypto/conf/conf_mod.c b/crypto/conf/conf_mod.c
+index 722fe46..a08b014 100644
+--- a/crypto/conf/conf_mod.c
++++ b/crypto/conf/conf_mod.c
+@@ -8,6 +8,7 @@
+  */
+ 
+ #include <stdio.h>
++#include <unistd.h>
+ #include <ctype.h>
+ #include <openssl/crypto.h>
+ #include "internal/cryptlib.h"
+@@ -497,7 +498,9 @@ char *CONF_get1_default_config_file(void)
+ #endif
+     OPENSSL_strlcat(file, OPENSSL_CONF, len + 1);
+ 
+-    return file;
++    if (access(file, R_OK) == 0)
++        return file;
++    return OPENSSL_strdup("/usr/share/defaults/ssl/openssl.cnf");
+ }
+ 
+ /*
+diff --git a/crypto/include/internal/cryptlib.h b/crypto/include/internal/cryptlib.h
+index d42a134..3747f8d 100644
+--- a/crypto/include/internal/cryptlib.h
++++ b/crypto/include/internal/cryptlib.h
+@@ -41,8 +41,13 @@ DEFINE_LHASH_OF(MEM);
+ 
+ # ifndef OPENSSL_SYS_VMS
+ #  define X509_CERT_AREA          OPENSSLDIR
+-#  define X509_CERT_DIR           OPENSSLDIR "/certs"
+-#  define X509_CERT_FILE          OPENSSLDIR "/cert.pem"
++/* Misleading, but the X509_CERT_AREA is used in places to fetch configs
++ * and should remain set to /etc/ssl. We modify the path to the cert
++ * areas instead to point to the cache location
++ */
++#  define CACHE_CERT_AREA         "/var/cache/ca-certs"
++#  define X509_CERT_DIR           CACHE_CERT_AREA "/certs"
++#  define X509_CERT_FILE          CACHE_CERT_AREA "/compat/ca-roots.pem"
+ #  define X509_PRIVATE_DIR        OPENSSLDIR "/private"
+ #  define CTLOG_FILE              OPENSSLDIR "/ct_log_list.cnf"
+ # else
+-- 
+2.31.1
+

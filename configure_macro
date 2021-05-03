@@ -1,0 +1,1 @@
+./config zlib shared --prefix=/usr --openssldir=/etc/ssl --libdir=lib64
