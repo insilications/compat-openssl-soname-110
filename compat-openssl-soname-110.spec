@@ -156,7 +156,7 @@ unset https_proxy
 unset no_proxy
 export SSL_CERT_FILE=/var/cache/ca-certs/anchors/ca-certificates.crt
 export LANG=C.UTF-8
-export SOURCE_DATE_EPOCH=1620026562
+export SOURCE_DATE_EPOCH=1620026929
 export GCC_IGNORE_WERROR=1
 export AR=gcc-ar
 export RANLIB=gcc-ranlib
@@ -246,7 +246,7 @@ make  %{?_smp_mflags}  V=1 VERBOSE=1
 popd
 
 %install
-export SOURCE_DATE_EPOCH=1620026562
+export SOURCE_DATE_EPOCH=1620026929
 rm -rf %{buildroot}
 ## install_prepend content
 export CFLAGS_ORIG="$CFLAGS"
@@ -266,6 +266,7 @@ export CXXFLAGS="$CXXFLAGS_ORIG $CXXFLAGS_USE -m64 -flto=16"
 V=1 VERBOSE=1 make DESTDIR=%{buildroot} MANDIR=/usr/share/man MANSUFFIX=openssl install
 ## install_macro end
 ## Remove excluded files
+rm -f %{buildroot}/usr/share/defaults/ssl/openssl.cnf
 rm -f %{buildroot}/usr/bin/c_rehash
 rm -f %{buildroot}/usr/bin/openssl
 rm -f %{buildroot}/usr/include/openssl/aes.h
@@ -351,9 +352,8 @@ rm -f %{buildroot}/usr/lib64/libssl.so
 rm -f %{buildroot}/usr/lib64/pkgconfig/libcrypto.pc
 rm -f %{buildroot}/usr/lib64/pkgconfig/libssl.pc
 rm -f %{buildroot}/usr/lib64/pkgconfig/openssl.pc
-rm -f %{buildroot}/usr/share/defaults/ssl/openssl.cnf
 ## install_append content
-install -D -m0644 apps/openssl.cnf %{buildroot}/usr/share/defaults/ssl/openssl.cnf
+#install -D -m0644 apps/openssl.cnf %{buildroot}/usr/share/defaults/ssl/openssl.cnf
 rm -rf %{buildroot}/etc/ssl
 rm -rf %{buildroot}/usr/share/doc/openssl/html
 rm -rf %{buildroot}/usr/share/man/
