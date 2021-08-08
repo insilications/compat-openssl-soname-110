@@ -18,7 +18,7 @@ index b141be5..f822222 100644
 +        CFLAGS           => add($ENV{'CFLAGS'}),
          bn_ops           => "SIXTY_FOUR_BIT_LONG RC4_CHAR",
      },
- 
+
 @@ -732,6 +733,7 @@ sub vms_info {
      #### machines where gcc doesn't understand -m32 and -m64
      "linux-elf" => {
@@ -27,6 +27,5 @@ index b141be5..f822222 100644
          cflags           => add(picker(default => "-DL_ENDIAN",
                                         release => "-fomit-frame-pointer")),
          bn_ops           => "BN_LLONG",
--- 
+--
 2.31.1
-
