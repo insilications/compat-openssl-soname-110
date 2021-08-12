@@ -5,13 +5,12 @@
 %define keepstatic 1
 Name     : compat-openssl-soname-110
 Version  : 1.1.0l
-Release  : 102
+Release  : 103
 URL      : https://www.openssl.org/source/old/1.1.0/openssl-1.1.0l.tar.gz
 Source0  : https://www.openssl.org/source/old/1.1.0/openssl-1.1.0l.tar.gz
 Summary  : unknown
 Group    : Development/Tools
 License  : GPL-2.0
-Requires: compat-openssl-soname-110-lib = %{version}-%{release}
 Requires: ca-certs
 Requires: ca-certs-static
 Requires: p11-kit
@@ -131,22 +130,6 @@ commercial-grade, fully featured, and Open Source toolkit implementing the
 Transport Layer Security (TLS) protocols (including SSLv3) as well as a
 full-strength general purpose cryptographic library.
 
-%package lib
-Summary: lib components for the compat-openssl-soname-110 package.
-Group: Libraries
-
-%description lib
-lib components for the compat-openssl-soname-110 package.
-
-
-%package staticdev
-Summary: staticdev components for the compat-openssl-soname-110 package.
-Group: Default
-
-%description staticdev
-staticdev components for the compat-openssl-soname-110 package.
-
-
 %prep
 %setup -q -n openssl-1.1.0l
 cd %{_builddir}/openssl-1.1.0l
@@ -160,7 +143,7 @@ unset https_proxy
 unset no_proxy
 export SSL_CERT_FILE=/var/cache/ca-certs/anchors/ca-certificates.crt
 export LANG=C.UTF-8
-export SOURCE_DATE_EPOCH=1628427862
+export SOURCE_DATE_EPOCH=1628737663
 export GCC_IGNORE_WERROR=1
 export AR=gcc-ar
 export RANLIB=gcc-ranlib
@@ -251,12 +234,12 @@ export FCFLAGS="${FCFLAGS_GENERATE}"
 export LDFLAGS="${LDFLAGS_GENERATE}"
 ./config zlib shared --prefix=/usr --openssldir=/etc/ssl --libdir=lib64
 ## make_prepend content
-make %{?_smp_mflags} depend LDFLAGS="${LDFLAGS} -Wl,--whole-archive /usr/lib64/libz.a -Wl,--no-whole-archive -Wl,--no-whole-archive"
+make %{?_smp_mflags} depend LDFLAGS="${LDFLAGS} -Wl,--whole-archive,/usr/lib64/libz.a,-lpthread,-ldl,-lm,-lmvec,--no-whole-archive"
 ## make_prepend end
-make  %{?_smp_mflags}  V=1 VERBOSE=1 LDFLAGS="${LDFLAGS} -Wl,--whole-archive /usr/lib64/libz.a -Wl,--no-whole-archive -Wl,--no-whole-archive" V=1 VERBOSE=1
+make  %{?_smp_mflags}  V=1 VERBOSE=1 LDFLAGS="${LDFLAGS} -Wl,--whole-archive,/usr/lib64/libz.a,-lpthread,-ldl,-lm,-lmvec,--no-whole-archive" V=1 VERBOSE=1
 
 LD_PRELOAD="./libcrypto.so ./libssl.so" apps/openssl speed rsa
-make -j16 test V=1 VERBOSE=1 LDFLAGS="${LDFLAGS} -Wl,--whole-archive /usr/lib64/libz.a -Wl,--no-whole-archive -Wl,--no-whole-archive" || :
+make -j16 test VERBOSE=1 V=1 LDFLAGS="${LDFLAGS} -Wl,--whole-archive,/usr/lib64/libz.a,-lpthread,-ldl,-lm,-lmvec,--no-whole-archive"
 make clean || :
 echo USED > statuspgo
 fi
@@ -269,14 +252,14 @@ export FCFLAGS="${FCFLAGS_USE}"
 export LDFLAGS="${LDFLAGS_USE}"
 ./config zlib shared --prefix=/usr --openssldir=/etc/ssl --libdir=lib64
 ## make_prepend content
-make %{?_smp_mflags} depend LDFLAGS="${LDFLAGS} -Wl,--whole-archive /usr/lib64/libz.a -Wl,--no-whole-archive -Wl,--no-whole-archive"
+make %{?_smp_mflags} depend LDFLAGS="${LDFLAGS} -Wl,--whole-archive,/usr/lib64/libz.a,-lpthread,-ldl,-lm,-lmvec,--no-whole-archive"
 ## make_prepend end
-make  %{?_smp_mflags}  V=1 VERBOSE=1 LDFLAGS="${LDFLAGS} -Wl,--whole-archive /usr/lib64/libz.a -Wl,--no-whole-archive -Wl,--no-whole-archive" V=1 VERBOSE=1
+make  %{?_smp_mflags}  V=1 VERBOSE=1 LDFLAGS="${LDFLAGS} -Wl,--whole-archive,/usr/lib64/libz.a,-lpthread,-ldl,-lm,-lmvec,--no-whole-archive" V=1 VERBOSE=1
 fi
 
 
 %install
-export SOURCE_DATE_EPOCH=1628427862
+export SOURCE_DATE_EPOCH=1628737663
 rm -rf %{buildroot}
 ## install_macro start
 ## pgo generate
@@ -308,7 +291,7 @@ export CXXFLAGS="${CXXFLAGS_USE}"
 export FFLAGS="${FFLAGS_USE}"
 export FCFLAGS="${FCFLAGS_USE}"
 export LDFLAGS="${LDFLAGS_USE}"
-make DESTDIR=%{buildroot} MANDIR=/usr/share/man MANSUFFIX=openssl install V=1 VERBOSE=1
+make DESTDIR=%{buildroot} MANDIR=/usr/share/man MANSUFFIX=openssl LDFLAGS="${LDFLAGS} -Wl,--whole-archive,/usr/lib64/libz.a,-lpthread,-ldl,-lm,-lmvec,--no-whole-archive" install V=1 VERBOSE=1
 ## install_macro end
 ## Remove excluded files
 rm -f %{buildroot}/usr/share/defaults/ssl/openssl.cnf
@@ -321,13 +304,3 @@ rm -rf %{buildroot}/usr/share/man/
 
 %files
 %defattr(-,root,root,-)
-
-%files lib
-%defattr(-,root,root,-)
-/usr/lib64/libcrypto.so.1.1
-/usr/lib64/libssl.so.1.1
-
-%files staticdev
-%defattr(-,root,root,-)
-/usr/lib64/libcrypto.a
-/usr/lib64/libssl.a
