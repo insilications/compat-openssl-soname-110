@@ -11,6 +11,7 @@ Source0  : https://www.openssl.org/source/old/1.1.0/openssl-1.1.0l.tar.gz
 Summary  : unknown
 Group    : Development/Tools
 License  : GPL-2.0
+Requires: compat-openssl-soname-110-lib = %{version}-%{release}
 Requires: ca-certs
 Requires: ca-certs-static
 Requires: p11-kit
@@ -130,6 +131,22 @@ commercial-grade, fully featured, and Open Source toolkit implementing the
 Transport Layer Security (TLS) protocols (including SSLv3) as well as a
 full-strength general purpose cryptographic library.
 
+%package lib
+Summary: lib components for the compat-openssl-soname-110 package.
+Group: Libraries
+
+%description lib
+lib components for the compat-openssl-soname-110 package.
+
+
+%package staticdev
+Summary: staticdev components for the compat-openssl-soname-110 package.
+Group: Default
+
+%description staticdev
+staticdev components for the compat-openssl-soname-110 package.
+
+
 %prep
 %setup -q -n openssl-1.1.0l
 cd %{_builddir}/openssl-1.1.0l
@@ -143,7 +160,7 @@ unset https_proxy
 unset no_proxy
 export SSL_CERT_FILE=/var/cache/ca-certs/anchors/ca-certificates.crt
 export LANG=C.UTF-8
-export SOURCE_DATE_EPOCH=1628737663
+export SOURCE_DATE_EPOCH=1628738174
 export GCC_IGNORE_WERROR=1
 export AR=gcc-ar
 export RANLIB=gcc-ranlib
@@ -239,7 +256,7 @@ make %{?_smp_mflags} depend LDFLAGS="${LDFLAGS} -Wl,--whole-archive,/usr/lib64/l
 make  %{?_smp_mflags}  V=1 VERBOSE=1 LDFLAGS="${LDFLAGS} -Wl,--whole-archive,/usr/lib64/libz.a,-lpthread,-ldl,-lm,-lmvec,--no-whole-archive" V=1 VERBOSE=1
 
 LD_PRELOAD="./libcrypto.so ./libssl.so" apps/openssl speed rsa
-make -j16 test VERBOSE=1 V=1 LDFLAGS="${LDFLAGS} -Wl,--whole-archive,/usr/lib64/libz.a,-lpthread,-ldl,-lm,-lmvec,--no-whole-archive"
+LD_PRELOAD="./libcrypto.so ./libssl.so" make -j16 test VERBOSE=1 V=1 LDFLAGS="${LDFLAGS} -Wl,--whole-archive,/usr/lib64/libz.a,-lpthread,-ldl,-lm,-lmvec,--no-whole-archive" || :
 make clean || :
 echo USED > statuspgo
 fi
@@ -259,7 +276,7 @@ fi
 
 
 %install
-export SOURCE_DATE_EPOCH=1628737663
+export SOURCE_DATE_EPOCH=1628738174
 rm -rf %{buildroot}
 ## install_macro start
 ## pgo generate
@@ -304,3 +321,13 @@ rm -rf %{buildroot}/usr/share/man/
 
 %files
 %defattr(-,root,root,-)
+
+%files lib
+%defattr(-,root,root,-)
+/usr/lib64/libcrypto.so.1.1
+/usr/lib64/libssl.so.1.1
+
+%files staticdev
+%defattr(-,root,root,-)
+/usr/lib64/libcrypto.a
+/usr/lib64/libssl.a
