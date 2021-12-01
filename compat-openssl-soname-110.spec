@@ -5,7 +5,7 @@
 %define keepstatic 1
 Name     : compat-openssl-soname-110
 Version  : 1.1.0l
-Release  : 109
+Release  : 114
 URL      : https://www.openssl.org/source/old/1.1.0/openssl-1.1.0l.tar.gz
 Source0  : https://www.openssl.org/source/old/1.1.0/openssl-1.1.0l.tar.gz
 Summary  : unknown
@@ -22,9 +22,6 @@ BuildRequires : automake-dev
 BuildRequires : binutils-dev
 BuildRequires : binutils-extras
 BuildRequires : bison
-BuildRequires : buildreq-configure
-BuildRequires : buildreq-cpan
-BuildRequires : buildreq-qmake
 BuildRequires : bzip2
 BuildRequires : bzip2-dev
 BuildRequires : bzip2-staticdev
@@ -113,9 +110,9 @@ BuildRequires : zstd-staticdev
 # Suppress stripping binaries
 %define __strip /bin/true
 %define debug_package %{nil}
-Patch1: 0001-Use-clearlinux-CFLAGS-during-build.patch
-Patch2: 0002-Hide-a-symbol-from-Steam.patch
-Patch3: 0003-Use-OS-provided-copy-of-openssl.cnf-as-fallback.patch
+Patch1: 0001-Hide-a-symbol-from-Steam.patch
+Patch2: 0002-Use-OS-provided-copy-of-openssl.cnf-as-fallback.patch
+Patch3: 0003-Use-clearlinux-CFLAGS-during-build.patch
 
 %description
 OpenSSL 1.1.0l 10 Sep 2019
@@ -140,7 +137,7 @@ unset https_proxy
 unset no_proxy
 export SSL_CERT_FILE=/var/cache/ca-certs/anchors/ca-certificates.crt
 export LANG=C.UTF-8
-export SOURCE_DATE_EPOCH=1638341715
+export SOURCE_DATE_EPOCH=1638344988
 export GCC_IGNORE_WERROR=1
 export AR=gcc-ar
 export RANLIB=gcc-ranlib
@@ -233,6 +230,7 @@ export FCFLAGS="${FCFLAGS_GENERATE}"
 export LDFLAGS="${LDFLAGS_GENERATE}"
 export LIBS="${LIBS_GENERATE}"
 ./config zlib shared --prefix=/usr --openssldir=/etc/ssl --libdir=lib64
+exit 1
 ## make_prepend content
 make %{?_smp_mflags} depend V=1 VERBOSE=1
 ## make_prepend end
@@ -260,6 +258,7 @@ export FCFLAGS="${FCFLAGS_USE}"
 export LDFLAGS="${LDFLAGS_USE}"
 export LIBS="${LIBS_USE}"
 ./config zlib shared --prefix=/usr --openssldir=/etc/ssl --libdir=lib64
+exit 1
 ## make_prepend content
 make %{?_smp_mflags} depend V=1 VERBOSE=1
 ## make_prepend end
@@ -268,7 +267,7 @@ fi
 
 
 %install
-export SOURCE_DATE_EPOCH=1638341715
+export SOURCE_DATE_EPOCH=1638344988
 rm -rf %{buildroot}
 %make_install
 ## Remove excluded files
