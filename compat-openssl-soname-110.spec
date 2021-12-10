@@ -5,13 +5,12 @@
 %define keepstatic 1
 Name     : compat-openssl-soname-110
 Version  : 1.1.0l
-Release  : 115
+Release  : 116
 URL      : https://www.openssl.org/source/old/1.1.0/openssl-1.1.0l.tar.gz
 Source0  : https://www.openssl.org/source/old/1.1.0/openssl-1.1.0l.tar.gz
 Summary  : unknown
 Group    : Development/Tools
 License  : GPL-2.0
-Requires: compat-openssl-soname-110-lib = %{version}-%{release}
 Requires: ca-certs
 Requires: ca-certs-static
 Requires: p11-kit
@@ -23,6 +22,9 @@ BuildRequires : automake-dev
 BuildRequires : binutils-dev
 BuildRequires : binutils-extras
 BuildRequires : bison
+BuildRequires : buildreq-configure
+BuildRequires : buildreq-cpan
+BuildRequires : buildreq-qmake
 BuildRequires : bzip2
 BuildRequires : bzip2-dev
 BuildRequires : bzip2-staticdev
@@ -125,22 +127,6 @@ commercial-grade, fully featured, and Open Source toolkit implementing the
 Transport Layer Security (TLS) protocols (including SSLv3) as well as a
 full-strength general purpose cryptographic library.
 
-%package lib
-Summary: lib components for the compat-openssl-soname-110 package.
-Group: Libraries
-
-%description lib
-lib components for the compat-openssl-soname-110 package.
-
-
-%package staticdev
-Summary: staticdev components for the compat-openssl-soname-110 package.
-Group: Default
-
-%description staticdev
-staticdev components for the compat-openssl-soname-110 package.
-
-
 %prep
 %setup -q -n openssl-1.1.0l
 cd %{_builddir}/openssl-1.1.0l
@@ -154,7 +140,7 @@ unset https_proxy
 unset no_proxy
 export SSL_CERT_FILE=/var/cache/ca-certs/anchors/ca-certificates.crt
 export LANG=C.UTF-8
-export SOURCE_DATE_EPOCH=1638345818
+export SOURCE_DATE_EPOCH=1639127887
 export GCC_IGNORE_WERROR=1
 export AR=gcc-ar
 export RANLIB=gcc-ranlib
@@ -245,9 +231,11 @@ export CXXFLAGS="${CXXFLAGS_GENERATE}"
 export FFLAGS="${FFLAGS_GENERATE}"
 export FCFLAGS="${FCFLAGS_GENERATE}"
 export LDFLAGS="${LDFLAGS_GENERATE}"
+export ASMFLAGS="${ASMFLAGS_GENERATE}"
 export LIBS="${LIBS_GENERATE}"
 ./config zlib shared --prefix=/usr --openssldir=/etc/ssl --libdir=lib64
 ## make_prepend content
+sd "install: install_sw install_ssldirs install_docs" "install: install_sw install_ssldirs" Makefile
 make %{?_smp_mflags} depend V=1 VERBOSE=1
 ## make_prepend end
 make  %{?_smp_mflags}  V=1 VERBOSE=1  V=1 VERBOSE=1
@@ -255,10 +243,34 @@ make  %{?_smp_mflags}  V=1 VERBOSE=1  V=1 VERBOSE=1
 ## profile_payload start
 unset LD_LIBRARY_PATH
 unset LIBRARY_PATH
+export DISPLAY=:0
+export __GL_SYNC_TO_VBLANK=1
+export __GL_SYNC_DISPLAY_DEVICE=HDMI-0
+export VDPAU_NVIDIA_SYNC_DISPLAY_DEVICE=HDMI-0
+export LANG=en_US.UTF-8
+export XDG_CONFIG_DIRS=/usr/share/xdg:/etc/xdg
+export XDG_SEAT=seat0
+export XDG_SESSION_TYPE=tty
+export XDG_CURRENT_DESKTOP=KDE
+export XDG_SESSION_CLASS=user
+export XDG_VTNR=1
+export XDG_SESSION_ID=1
+export XDG_RUNTIME_DIR=/run/user/1000
+export XDG_DATA_DIRS=/usr/local/share:/usr/share
+export KDE_SESSION_VERSION=5
+export KDE_SESSION_UID=1000
+export KDE_FULL_SESSION=true
+export KDE_APPLICATIONS_AS_SCOPE=1
+export VDPAU_DRIVER=nvidia
+export LIBVA_DRIVER_NAME=vdpau
+export LIBVA_DRIVERS_PATH=/usr/lib64/dri
+export GTK_RC_FILES=/etc/gtk/gtkrc
+export FONTCONFIG_PATH=/usr/share/defaults/fonts
 export LD_LIBRARY_PATH="$PWD:/usr/nvidia/lib64:/usr/nvidia/lib64/vdpau:/usr/nvidia/lib64/xorg/modules/drivers:/usr/nvidia/lib64/xorg/modules/extensions:/usr/local/cuda/lib64:/usr/lib64/haswell:/usr/lib64/haswell/pulseaudio:/usr/lib64/haswell/alsa-lib:/usr/lib64/haswell/gstreamer-1.0:/usr/lib64/haswell/pipewire-0.3:/usr/lib64/haswell/spa-0.2:/usr/lib64/dri:/usr/lib64/chromium:/usr/lib64:/usr/lib64/pulseaudio:/usr/lib64/alsa-lib:/usr/lib64/gstreamer-1.0:/usr/lib64/pipewire-0.3:/usr/lib64/spa-0.2:/usr/lib:/aot/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin:/aot/intel/oneapi/compiler/latest/linux/lib:/aot/intel/oneapi/mkl/latest/lib/intel64:/aot/intel/oneapi/tbb/latest/lib/intel64/gcc4.8:/usr/share:/usr/lib64/wine:/usr/nvidia/lib32:/usr/nvidia/lib32/vdpau:/usr/lib32:/usr/lib32/wine"
 export LIBRARY_PATH="$PWD:/usr/nvidia/lib64:/usr/nvidia/lib64/vdpau:/usr/nvidia/lib64/xorg/modules/drivers:/usr/nvidia/lib64/xorg/modules/extensions:/usr/local/cuda/lib64:/usr/lib64/haswell:/usr/lib64/haswell/pulseaudio:/usr/lib64/haswell/alsa-lib:/usr/lib64/haswell/gstreamer-1.0:/usr/lib64/haswell/pipewire-0.3:/usr/lib64/haswell/spa-0.2:/usr/lib64/dri:/usr/lib64/chromium:/usr/lib64:/usr/lib64/pulseaudio:/usr/lib64/alsa-lib:/usr/lib64/gstreamer-1.0:/usr/lib64/pipewire-0.3:/usr/lib64/spa-0.2:/usr/lib:/aot/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin:/aot/intel/oneapi/compiler/latest/linux/lib:/aot/intel/oneapi/mkl/latest/lib/intel64:/aot/intel/oneapi/tbb/latest/lib/intel64/gcc4.8:/usr/share:/usr/lib64/wine:/usr/nvidia/lib32:/usr/nvidia/lib32/vdpau:/usr/lib32:/usr/lib32/wine"
-LD_PRELOAD="./libcrypto.so ./libssl.so" apps/openssl speed rsa sha256 aes
-make -j16 test VERBOSE=1 V=1 || :
+# LD_PRELOAD="./libcrypto.so ./libssl.so" apps/openssl speed rsa sha256 aes -seconds 5
+LD_PRELOAD="./libcrypto.so ./libssl.so" apps/openssl speed -seconds 3
+make -j16 test TESTS='alltests' VERBOSE=1 V=1
 export LD_LIBRARY_PATH="/usr/nvidia/lib64:/usr/nvidia/lib64/vdpau:/usr/nvidia/lib64/xorg/modules/drivers:/usr/nvidia/lib64/xorg/modules/extensions:/usr/local/cuda/lib64:/usr/lib64/haswell:/usr/lib64/haswell/pulseaudio:/usr/lib64/haswell/alsa-lib:/usr/lib64/haswell/gstreamer-1.0:/usr/lib64/haswell/pipewire-0.3:/usr/lib64/haswell/spa-0.2:/usr/lib64/dri:/usr/lib64/chromium:/usr/lib64:/usr/lib64/pulseaudio:/usr/lib64/alsa-lib:/usr/lib64/gstreamer-1.0:/usr/lib64/pipewire-0.3:/usr/lib64/spa-0.2:/usr/lib:/aot/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin:/aot/intel/oneapi/compiler/latest/linux/lib:/aot/intel/oneapi/mkl/latest/lib/intel64:/aot/intel/oneapi/tbb/latest/lib/intel64/gcc4.8:/usr/share:/usr/lib64/wine:/usr/nvidia/lib32:/usr/nvidia/lib32/vdpau:/usr/lib32:/usr/lib32/wine"
 export LIBRARY_PATH="/usr/nvidia/lib64:/usr/nvidia/lib64/vdpau:/usr/nvidia/lib64/xorg/modules/drivers:/usr/nvidia/lib64/xorg/modules/extensions:/usr/local/cuda/lib64:/usr/lib64/haswell:/usr/lib64/haswell/pulseaudio:/usr/lib64/haswell/alsa-lib:/usr/lib64/haswell/gstreamer-1.0:/usr/lib64/haswell/pipewire-0.3:/usr/lib64/haswell/spa-0.2:/usr/lib64/dri:/usr/lib64/chromium:/usr/lib64:/usr/lib64/pulseaudio:/usr/lib64/alsa-lib:/usr/lib64/gstreamer-1.0:/usr/lib64/pipewire-0.3:/usr/lib64/spa-0.2:/usr/lib:/aot/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin:/aot/intel/oneapi/compiler/latest/linux/lib:/aot/intel/oneapi/mkl/latest/lib/intel64:/aot/intel/oneapi/tbb/latest/lib/intel64/gcc4.8:/usr/share:/usr/lib64/wine:/usr/nvidia/lib32:/usr/nvidia/lib32/vdpau:/usr/lib32:/usr/lib32/wine"
 ## profile_payload end
@@ -272,9 +284,11 @@ export CXXFLAGS="${CXXFLAGS_USE}"
 export FFLAGS="${FFLAGS_USE}"
 export FCFLAGS="${FCFLAGS_USE}"
 export LDFLAGS="${LDFLAGS_USE}"
+export ASMFLAGS="${ASMFLAGS_USE}"
 export LIBS="${LIBS_USE}"
 ./config zlib shared --prefix=/usr --openssldir=/etc/ssl --libdir=lib64
 ## make_prepend content
+sd "install: install_sw install_ssldirs install_docs" "install: install_sw install_ssldirs" Makefile
 make %{?_smp_mflags} depend V=1 VERBOSE=1
 ## make_prepend end
 make  %{?_smp_mflags}  V=1 VERBOSE=1  V=1 VERBOSE=1
@@ -282,7 +296,7 @@ fi
 
 
 %install
-export SOURCE_DATE_EPOCH=1638345818
+export SOURCE_DATE_EPOCH=1639127887
 rm -rf %{buildroot}
 ## install_macro start
 ## pgo generate
@@ -381,13 +395,3 @@ rm -rf %{buildroot}/usr/share/man/
 
 %files
 %defattr(-,root,root,-)
-
-%files lib
-%defattr(-,root,root,-)
-/usr/lib64/libcrypto.so.1.1
-/usr/lib64/libssl.so.1.1
-
-%files staticdev
-%defattr(-,root,root,-)
-/usr/lib64/libcrypto.a
-/usr/lib64/libssl.a
