@@ -1,1 +1,2 @@
+sd "install: install_sw install_ssldirs install_docs" "install: install_sw install_ssldirs" Makefile
 make %{?_smp_mflags} depend V=1 VERBOSE=1
